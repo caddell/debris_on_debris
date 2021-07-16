@@ -7,9 +7,20 @@ ggplot(events, aes(days_to_tca))+
   geom_histogram(binwidth = .25)+
   theme_minimal()
 
-ggplot(events, aes(pc_best, days_to_tca))+
+events %>% 
+  filter(pc_best < .001) %>% 
+ggplot(aes(pc_best, days_to_tca))+
   geom_point()+
   theme_minimal()
+
+events %>% 
+  filter(pc_nom < .001) %>% 
+  ggplot(aes(pc_nom, days_to_tca))+
+  geom_point()+
+  theme_minimal()
+
+
+ggplot(events, aes(pc))
 
 event_summary <- events %>% 
   group_by(event_number) %>% 
@@ -26,6 +37,9 @@ ggplot(event_summary, aes(x = days_tracked))+
 ggplot(event_summary, aes(last_notice))+
   geom_density(adjust = 2)+
   theme_minimal()
+
+event_summary %>% 
+  summarise(stopped_tracking = sum(last_notice > 2.5, na.rm = TRUE), stopped_tracking_pct = stopped_tracking/n())
 
 ggplot(event_summary, aes(first_notice))+
   geom_density(adjust = 2)+
