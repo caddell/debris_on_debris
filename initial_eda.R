@@ -35,8 +35,7 @@ event_summary %>%
   filter(last_notice < 1.5) %>% #pull out events that went away
   pivot_longer(cols = c(last_notice, first_notice), names_to = "notice", values_to = "days") %>% 
   ggplot(aes(days, event_number))+
-  geom_line(aes(group = event_Snumber), color = 'lightgrey')+
-  geom_point(aes(color = notice), size = 3)+
+  geom_line(aes(group = event_number), color = 'lightgrey')+
+  geom_point(aes(color = notice), size = 1.5)+
   scale_color_colorblind()+
   theme_minimal()
-  
