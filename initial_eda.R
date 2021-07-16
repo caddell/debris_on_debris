@@ -20,15 +20,15 @@ event_summary <- events %>%
   filter(days_tracked < 11) #some weird event history
   
 ggplot(event_summary, aes(x = days_tracked))+
-  geom_histogram(binwidth = 1)+
+  geom_density(adjust = 2)+
   theme_minimal()
 
 ggplot(event_summary, aes(last_notice))+
-  geom_histogram(binwidth = .25)+
+  geom_density(adjust = 2)+
   theme_minimal()
 
 ggplot(event_summary, aes(first_notice))+
-  geom_histogram(binwidth = .25)+
+  geom_density(adjust = 2)+
   theme_minimal()
 
 event_summary %>% 
