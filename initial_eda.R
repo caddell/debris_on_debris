@@ -20,11 +20,12 @@ events %>%
   theme_minimal()
 
 events %>% 
-  filter(event_number < 5) %>%
+  filter(event_number < 500,
+         days_to_tca < 5) %>%
   arrange(event_number, desc(days_to_tca)) %>% 
   ggplot(aes(days_to_tca, pc_nom))+
-  geom_point()+
-  geom_line(aes(group = event_number), arrow = arrow())+
+  geom_point(alpha = .5)+
+  geom_line(aes(group = event_number), alpha = .5, arrow = arrow(angle = 25))+
   scale_x_reverse()+
   theme_minimal()
 
@@ -35,8 +36,10 @@ event_summary <- events %>%
             first_notice = (max(days_to_tca)),
             max_pc_best = max(pc_best),
             min_pc_best = min(pc_best),
+            pc_best_diff = max_pc_best - min_pc_best,
             max_pc_nom = max(pc_nom),
             min_pc_nom = min(pc_nom),
+            pc_nom_diff = max_pc_nom - min_pc_nom,
             lead = first_notice - last_notice,
             single_notice = as.factor(if_else(first_notice == last_notice, "Single Notice", "Multiple-Notices"))) %>% 
   filter(days_tracked < 11) #some weird event history
@@ -79,4 +82,3 @@ event_summary %>%
        color = "Notice")+
   facet_grid(rows = vars(single_notice))
 
-table(event_summary$single_notice)
