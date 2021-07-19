@@ -38,7 +38,8 @@ event_summary <- events %>%
             min_pc_best = min(pc_best),
             max_pc_nom = max(pc_nom),
             min_pc_nom = min(pc_nom),
-            lead = first_notice - last_notice) %>% 
+            lead = first_notice - last_notice,
+            single_notice = if_else(first_notice == last_notice, "Single Notice", "Multiple-Notices")) %>% 
   filter(days_tracked < 11) #some weird event history
   
 ggplot(event_summary, aes(x = days_tracked))+
@@ -57,10 +58,22 @@ ggplot(event_summary, aes(first_notice))+
   theme_minimal()
 
 event_summary %>% 
+  filter(last_notice < 2,
+         max_pc_nom > .0001) %>% 
+  count()
+
+event_summary %>% 
   filter(last_notice < 1.5) %>% #pull out events that went away
+  arrange(desc(first_notice,last_notice)) %>% 
+  mutate(order = row_number()) %>% 
   pivot_longer(cols = c(last_notice, first_notice), names_to = "notice", values_to = "days") %>% 
-  ggplot(aes(days, event_number))+
+  ggplot(aes(days, order))+
   geom_line(aes(group = event_number), color = 'lightgrey')+
   geom_point(aes(color = notice), size = 1.5)+
   scale_color_colorblind()+
-  theme_minimal()
+  scale_x_continuous(breaks = seq(from = 0 , to = 10, by = 1))+
+  theme_minimal()+
+  labs(y = "Event",
+       x = "Days",
+       color = "Notice")+
+  facet_wrap(~single_notice, ncol = 1, scales = 'free_y')
