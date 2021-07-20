@@ -82,3 +82,67 @@ event_summary %>%
        color = "Notice")+
   facet_grid(rows = vars(single_notice))
 
+#suggested analysis from Matt
+events <- events %>% 
+  mutate(pc = if_else(is.na(pc_best), pc_nom, pc_best))
+
+
+events %>% 
+  filter(pc < .005,
+         !is.na(days_to_tca)) %>% 
+ggplot(aes(log10(pc)))+
+  stat_ecdf()+
+  #scale_x_continuous(limits = c(0,.0000025))+
+  facet_wrap(~floor(days_to_tca), drop = TRUE, ncol = 1)+
+  theme_minimal()
+
+events %>% 
+  filter(!is.na(days_to_tca)) %>% 
+ggplot(aes(log10(pc), color= as.factor(floor(days_to_tca))))+
+ geom_density()+
+  theme_minimal()
+
+events %>% 
+  filter(!is.na(days_to_tca)) %>% 
+  ggplot(aes(pc, color= as.factor(floor(days_to_tca))))+
+  stat_ecdf()+
+  scale_x_continuous(limits = c(0,.00001))+
+  theme_minimal()+
+  labs(color = "Days to TCA",
+       y = "CDF")
+
+#only 392 events with pc > .0001 or 
+events %>% 
+  filter(pc > .0001) %>% 
+  count()
+
+#that's .09% of all events
+392/410889
+
+#there is prob_cat that makes the number of fragments harder to use
+#here I'll use the .5 as yes to make it easy
+events <- events %>% 
+  mutate(frag = if_else(prob_cat_if_coll > .5, num_frag_if_catcol, num_frag_no_catcol),
+         frag_breaks = cut(frag, breaks = c(0,10, 50, 100, 200, Inf)))
+
+events %>% 
+  filter(!is.na(days_to_tca)) %>% 
+  ggplot(aes(pc, color = frag_breaks))+
+  stat_ecdf()+
+  theme_minimal()+
+  labs(color = "Fragment",
+       y = "CDF")
+
+table(events$frag_breaks)
+
+#with a pc set of .0001 and only less than 5 days to collislion, there would have been 392 events
+events %>% 
+  filter(pc > .0001,
+         days_to_tca < 5)
+
+#If I'm reading this right, there was never a PC above.004
+events %>% 
+  arrange(desc(pc)) %>% 
+  select(pc, pc_nom, pc_best)
+
+#its because all pc_nom above that threshold had small values for pc_best
